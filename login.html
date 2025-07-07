@@ -1,0 +1,48 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login | Sanketh Academy</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+</head>
+<body>
+  <h1>Login / Register</h1>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxRo43yRrY_ojKsaio_YFOmgh4TTOAm5Q",
+      authDomain: "sanketh-academy.firebaseapp.com",
+      projectId: "sanketh-academy",
+      appId: "1:538858627963:web:5ac4ee77b523695fde53de"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const adminEmail = "admin@sanketh.xyz";
+
+    function login() {
+      auth.signInWithEmailAndPassword(email.value, password.value)
+        .then(user => {
+          if (email.value === adminEmail) {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "student.html";
+          }
+        })
+        .catch(err => alert(err.message));
+    }
+
+    function register() {
+      auth.createUserWithEmailAndPassword(email.value, password.value)
+        .then(() => alert("Registered! Please login."))
+        .catch(err => alert(err.message));
+    }
+  </script>
+</body>
+</html>

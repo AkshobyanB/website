@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | Sanketh Academy</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+</head>
+<body>
+
+  <nav>
+    <h1>Admin Panel</h1>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <h2>All Student Enrollments</h2>
+    <p>Only visible to admin</p>
+  </header>
+
+  <section id="enrollments" class="card-container">
+    <!-- Firestore data will be inserted here -->
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxRo43yRrY_ojKsaio_YFOmgh4TTOAm5Q",
+      authDomain: "sanketh-academy.firebaseapp.com",
+      projectId: "sanketh-academy"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const adminEmail = "admin@sanketh.xyz"; // ✅ change if needed
+
+    // 🛡 Protect admin panel
+    auth.onAuthStateChanged(user => {
+      if (!user || user.email !== adminEmail) {
+        alert("Access denied. Admins only.");
+        window.location.href = "login.html";
+      } else {
+        loadEnrollments();
+      }
+    });
+
+    // 📥 Load all enrollment data from Firestore
+    function loadEnrollments() {
+      const container = document.getElementById("enrollments");
+      db.collection("enrollments").orderBy("date", "desc").get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            container.innerHTML = "<p>No enrollments yet.</p>";
+          } else {
+            snapshot.forEach(doc => {
+              const data = doc.data();
+              container.innerHTML += `
+                <div class="course-card">
+                  <h3>${data.course}</h3>
+                  <p><strong>Email:</strong> ${data.email}</p>
+                  <p><strong>Payment ID:</strong> ${data.paymentId}</p>
+                  <p><strong>Date:</strong> ${new Date(data.date.toDate()).toLocaleDateString()}</p>
+                </div>`;
+            });
+          }
+        })
+        .catch(error => {
+          container.innerHTML = `<p>Error loading data: ${error.message}</p>`;
+        });
+    }
+
+    // 🔐 Logout
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
+</body>
+</html>

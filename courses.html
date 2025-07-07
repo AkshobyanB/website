@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Courses | Sanketh Academy</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+  <nav>
+    <h1>Sanketh Academy</h1>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="courses.html">Courses</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    <h2>Available Courses</h2>
+    <p>Choose your course and start learning!</p>
+  </header>
+
+  <section class="card-container">
+    <!-- Arduino Course -->
+    <div class="course-card">
+      <h3>Arduino Beginner</h3>
+      <p>Learn basics of electronics and Arduino programming with hands-on practice.</p>
+      <button onclick="payNow('Arduino Beginner', 39900)">Pay ₹399</button>
+    </div>
+
+    <!-- STM32 Course -->
+    <div class="course-card">
+      <h3>STM32 Programming</h3>
+      <p>Master embedded C and ARM Cortex development on STM32 boards.</p>
+      <button onclick="payNow('STM32 Programming', 59900)">Pay ₹599</button>
+    </div>
+
+    <!-- Robotics Course -->
+    <div class="course-card">
+      <h3>Robotics Kit Course</h3>
+      <p>Build a line follower robot using sensors, Arduino, and our robotics kit.</p>
+      <button onclick="payNow('Robotics Kit Course', 79900)">Pay ₹799</button>
+    </div>
+  </section>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxRo43yRrY_ojKsaio_YFOmgh4TTOAm5Q",
+      authDomain: "sanketh-academy.firebaseapp.com",
+      projectId: "sanketh-academy",
+      storageBucket: "sanketh-academy.firebasestorage.app",
+      messagingSenderId: "538858627963",
+      appId: "1:538858627963:web:5ac4ee77b523695fde53de",
+      measurementId: "G-5HLSM7H6QR"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function payNow(courseName, amount) {
+      const user = auth.currentUser;
+
+      if (!user) {
+        alert("Please login before payment.");
+        return window.location.href = "login.html";
+      }
+
+      const options = {
+        key: "rzp_test_YourKeyHere", // Replace with your Razorpay Key
+        amount: amount,
+        currency: "INR",
+        name: "Sanketh Academy",
+        description: courseName,
+        handler: function (response) {
+          db.collection("enrollments").add({
+            email: user.email,
+            course: courseName,
+            paymentId: response.razorpay_payment_id,
+            date: new Date()
+          }).then(() => {
+            alert("Payment successful and course enrolled!");
+            window.location.href = "student.html";
+          }).catch((error) => {
+            alert("Payment done but failed to save: " + error.message);
+          });
+        },
+        theme: {
+          color: "#0059b3"
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+  </script>
+
+</body>
+</html>
