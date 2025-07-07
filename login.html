@@ -12,7 +12,6 @@
   <input type="password" id="password" placeholder="Password" />
   <button onclick="login()">Login</button>
   <button onclick="register()">Register</button>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCxRo43yRrY_ojKsaio_YFOmgh4TTOAm5Q",
@@ -22,11 +21,9 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-
     const adminEmail = "admin@sanketh.xyz";
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-
     function login() {
       auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
         .then(user => {
@@ -38,7 +35,6 @@
         })
         .catch(err => alert("Login Error: " + err.message));
     }
-
     function register() {
       auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
         .then(() => alert("Registered successfully! Please login."))
